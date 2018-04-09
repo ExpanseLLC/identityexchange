@@ -18,6 +18,7 @@ setup(name='IdentityExchange',
       # ],
       extras_require={
           'dev': [
+              'pycodestyle',
               'pytest-mock',
               'pytest-cov'
           ]

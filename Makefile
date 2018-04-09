@@ -1,12 +1,15 @@
-.PHONY: init test install clean
+.PHONY: init lint test install clean
 
 init:
 	python3.6 -m venv .venv
 	source .venv/bin/activate; \
 	pip3 install -e '.[dev]'; \
 
+lint:
+	source .venv/bin/activate; \
+	python3.6 .ci/linter.py; \
+
 test:
-	if [ ! -d ".venv/" ]; then init; fi
 	source .venv/bin/activate; \
 	pytest; \
 
