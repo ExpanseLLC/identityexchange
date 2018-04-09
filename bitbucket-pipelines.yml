@@ -12,4 +12,5 @@ pipelines:
           - pip
         script:
           - make init
+          - make lint
           - make test
