@@ -11,7 +11,7 @@ lint:
 
 test:
 	source .venv/bin/activate; \
-	pytest; \
+	pytest --cov=identityexchange; \
 
 install:
 	python3.6 -m venv .venv
