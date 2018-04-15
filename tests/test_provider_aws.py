@@ -27,6 +27,7 @@ class TestMethods(unittest.TestCase):
         aws = provider.AmazonWebServices(config={
             "aws": {
                 "account": 1234567890,
+                "duration": 3600,
                 "role": "test-role"
             },
             "google": {
@@ -42,7 +43,8 @@ class TestMethods(unittest.TestCase):
         sts.assume_role_with_web_identity.assert_called_once_with(
             RoleArn="arn:aws:iam::1234567890:role/test-role",
             RoleSessionName="nobody",
-            WebIdentityToken="123token456"
+            WebIdentityToken="123token456",
+            DurationSeconds=3600
         )
         self.assertEqual(expected_access_key, actual.get("access_key"))
         self.assertEqual(expected_secret_key, actual.get("secret_key"))

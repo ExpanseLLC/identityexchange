@@ -73,7 +73,8 @@ class AmazonWebServices:
                 self.config.get("aws").get("role"),
             ),
             RoleSessionName=self.config.get("google").get("credentials")["username"],
-            WebIdentityToken=self.config.get("google").get("credentials")["token"]
+            WebIdentityToken=self.config.get("google").get("credentials")["token"],
+            DurationSeconds=self.config.get("aws").get("duration")
         )
         return {
             "access_key": response.get("Credentials").get("AccessKeyId"),

@@ -18,6 +18,7 @@ class Config:
                 "domain": None
             },
             "aws": {
+                "duration": 7200,
                 "account": None,
                 "role": None
             }
