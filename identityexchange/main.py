@@ -4,7 +4,7 @@ from pathlib import Path
 
 import boto3
 
-from identityexchange import config
+from .config import Config
 from .provider import Google, AmazonWebServices
 
 pp = pprint.PrettyPrinter(indent=2)
@@ -35,7 +35,7 @@ def main():
     """
     Application entry point
     """
-    opts = config.Config().load_config()
+    opts = Config().load_config()
 
     provider_google = Google(config=opts)
     google_credentials = provider_google.login_with_google()

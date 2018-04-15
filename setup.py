@@ -30,7 +30,7 @@ setup(name="IdentityExchange",
       },
       entry_points={
           "console_scripts": [
-              "expanse-idx=identityexchange.main:main"
+              "identityexchange=identityexchange.main:main"
           ]
       },
       )
