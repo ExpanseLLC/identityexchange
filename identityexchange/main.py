@@ -1,4 +1,6 @@
+import os
 import pprint
+from pathlib import Path
 
 import boto3
 
@@ -8,19 +10,25 @@ from .provider import Google, AmazonWebServices
 pp = pprint.PrettyPrinter(indent=2)
 
 
-def get_buckets(credentials):
+def write_aws_credentials(credentials):
     """
-    Example function using the STS credentials received earlier.
+    Writes out the AWS STS credentials to ~/.aws/credentials
     :param credentials: (dict) AWS STS credentials
     :return:
     """
-    client = boto3.client(
-        "s3",
-        aws_access_key_id=credentials.get("access_key"),
-        aws_secret_access_key=credentials.get("secret_key"),
-        aws_session_token=credentials.get("session_token"),
-    )
-    pp.pprint(client.list_buckets())
+    path = os.path.join(Path.home(), ".aws/credentials")
+    with open(path, "w") as fb:
+        fb.writelines([
+            "[default]",
+            "\n",
+            "aws_access_key_id={}".format(credentials.get("access_key")),
+            "\n",
+            "aws_secret_access_key={}".format(credentials.get("secret_key")),
+            "\n",
+            "aws_session_token={}".format(credentials.get("session_token")),
+            "\n"
+        ])
+        fb.flush()
 
 
 def main():
@@ -38,7 +46,7 @@ def main():
     provider_aws = AmazonWebServices(config=opts)
     aws_credentials = provider_aws.login_aws()
 
-    get_buckets(credentials=aws_credentials)
+    write_aws_credentials(credentials=aws_credentials)
 
 
 if __name__ == "__main__":
