@@ -11,7 +11,7 @@ lint:
 
 test:
 	source .venv/bin/activate; \
-	pytest; \
+	pytest --cov=identityexchange; \
 
 install:
 	python3.6 -m venv .venv
@@ -24,3 +24,4 @@ clean:
 	rm -rf build/
 	rm -rf dist/
 	rm -rf .pytest_cache/
+	rm -rf htmlcov/
