@@ -1,24 +1,23 @@
-import json
+import httplib2
+from oauth2client.client import flow_from_clientsecrets
+from oauth2client.file import Storage
+from oauth2client.tools import run_flow
 
-from google.auth.transport import requests
-from google.oauth2 import id_token
-from google_auth_oauthlib import flow
+from identityexchange.config import Config
 
 
 class Google:
     def __init__(self, config):
         self.config = config
+        self.store = Storage(filename=Config.credentials_path())
 
-    def validate_token(self, credentials, client_id):
+    def __validate_token(self, credentials):
         """
         Validates the Google OAuth2 token and retrieves the user's email address.
         :param credentials: (dict) google token credentials
-        :param client_id: (str) client id from client_credentials.json
         :return: (str) The user's email address
         """
-        idinfo = id_token.verify_oauth2_token(id_token=credentials.id_token,
-                                              request=requests.Request(),
-                                              audience=client_id)
+        idinfo = credentials.id_token
         if idinfo["iss"] not in ["accounts.google.com", "https://accounts.google.com"]:
             raise ValueError("Wrong issuer.")
 
@@ -36,21 +35,20 @@ class Google:
         Uses the Google OAuth2 library to perform an oauth2 authentication flow.
         :return: (dict) The username (email) and token after authentication
         """
-        client_credentials = json.load(open(self.config.get("google").get("credentials_file")))
-        auth_flow = flow.InstalledAppFlow.from_client_secrets_file(
-            self.config.get("google").get("credentials_file"),
-            scopes=["profile", "email"]
-        )
+        credentials = self.store.get()
 
-        credentials = auth_flow.run_local_server(host="localhost",
-                                                 port=8080,
-                                                 authorization_prompt_message="Please visit this URL: {url}",
-                                                 success_message="Authentication complete. You may close this window.",
-                                                 open_browser=True)
+        if not credentials or credentials.invalid:
+            # could not find existing credentials, run the flow
+            auth_flow = flow_from_clientsecrets(filename=self.config.get("google").get("credentials_file"),
+                                                scope=["https://www.googleapis.com/auth/userinfo.email"])
+            credentials = run_flow(flow=auth_flow, storage=self.store)
+        else:
+            # refresh the token we found
+            credentials.refresh(httplib2.Http())
+
         return {
-            "username": self.validate_token(credentials=credentials,
-                                            client_id=client_credentials["installed"]["client_id"]),
-            "token": credentials.id_token
+            "username": self.__validate_token(credentials=credentials),
+            "token": credentials.id_token_jwt
         }
 
 

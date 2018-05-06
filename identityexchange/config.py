@@ -8,13 +8,14 @@ import yaml
 class Config:
     def __init__(self):
         # Ensure config directory exists
-        directory = Path(os.path.join(Path.home(), ".config/identityexchange/"))
+        directory = Path(os.path.join(Path.home(), Config.config_dir()))
         Path(directory).mkdir(parents=True, exist_ok=True)
 
         self.config_path = os.path.join(directory, "application.yaml")
+        self.credentials_path = os.path.join(Config.config_dir(), "credentials.json")
         self.default_config = {
             "google": {
-                "credentials_file": os.path.join(Path.home(), ".config/identityexchange/google_credentials.json"),
+                "credentials_file": os.path.join(Config.config_dir(), "google_credentials.json"),
                 "domain": None
             },
             "aws": {
@@ -24,7 +25,15 @@ class Config:
             }
         }
 
-    def set_google_credentials(self):
+    @staticmethod
+    def config_dir():
+        return os.path.join(Path.home(), ".config/identityexchange/")
+
+    @staticmethod
+    def credentials_path():
+        return os.path.join(Config.config_dir(), "credentials.json")
+
+    def __set_google_credentials(self):
         """
         Writes out the google credentials file if not present on the file system
         :return:
@@ -43,13 +52,13 @@ class Config:
                 ]
             }
         }
-        path = os.path.join(Path.home(), ".config/identityexchange/google_credentials.json")
+        path = os.path.join(Config.config_dir(), "google_credentials.json")
         if not os.path.isfile(path):
             with(open(path, "w")) as fb:
                 fb.write(json.dumps(credentials))
                 fb.flush()
 
-    def set_config(self):
+    def __set_config(self):
         """
         Writes the configuration file based on user input
         :return:
@@ -84,7 +93,7 @@ class Config:
         Reads configuration file and loads into a dict
         :return: (dict) configuration options
         """
-        self.set_config()
-        self.set_google_credentials()
+        self.__set_config()
+        self.__set_google_credentials()
 
         return yaml.load(open(self.config_path))
