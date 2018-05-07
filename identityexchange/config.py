@@ -22,7 +22,7 @@ class Config:
                 "domain": None
             },
             "aws": {
-                "duration": 7200,
+                "duration": 3600,
                 "profiles": []
             }
         }
