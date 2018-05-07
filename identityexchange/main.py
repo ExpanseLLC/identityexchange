@@ -1,8 +1,11 @@
-import os
+import argparse
+import logging
 import pprint
-from pathlib import Path
 
 import boto3
+import botocore
+import oauth2client
+from oauth2client import tools
 
 from .config import Config
 from .provider import Google, AmazonWebServices
@@ -10,43 +13,50 @@ from .provider import Google, AmazonWebServices
 pp = pprint.PrettyPrinter(indent=2)
 
 
-def write_aws_credentials(credentials):
-    """
-    Writes out the AWS STS credentials to ~/.aws/credentials
-    :param credentials: (dict) AWS STS credentials
-    :return:
-    """
-    path = os.path.join(Path.home(), ".aws/credentials")
-    with open(path, "w") as fb:
-        fb.writelines([
-            "[default]",
-            "\n",
-            "aws_access_key_id={}".format(credentials.get("access_key")),
-            "\n",
-            "aws_secret_access_key={}".format(credentials.get("secret_key")),
-            "\n",
-            "aws_session_token={}".format(credentials.get("session_token")),
-            "\n"
-        ])
-        fb.flush()
+def parse_args():
+    parser = argparse.ArgumentParser(
+        prog="identityexchange",
+        description="Exchange public identity for AWS credentials",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        parents=[tools.argparser]
+    )
+
+    return parser.parse_args()
+
+
+def setup_logging(str_log_level):
+    logformat = "%(levelname)s "
+    loglevel = logging._nameToLevel.get(str_log_level)
+
+    # Debug messages show module name
+    if loglevel == logging.DEBUG:
+        logformat += "%(name)s - "
+
+    logformat += "%(message)s"
+
+    logging.basicConfig(format=logformat, level=loglevel)
+    botocore.log.level = logging.WARNING
+    oauth2client.client.logger.level = logging.WARNING
 
 
 def main():
     """
     Application entry point
     """
+    args = parse_args()
+    setup_logging(args.logging_level)
+
     opts = Config().load_config()
 
+    # Retrieve Google JWT token
     provider_google = Google(config=opts)
     google_credentials = provider_google.login_with_google()
 
-    opts["google"]["credentials"] = google_credentials
-    opts["sts"] = boto3.client("sts")
-
-    provider_aws = AmazonWebServices(config=opts)
-    aws_credentials = provider_aws.login_aws()
-
-    write_aws_credentials(credentials=aws_credentials)
+    # Retrieve AWS credentials using Google token
+    provider_aws = AmazonWebServices(config=opts,
+                                     client=boto3.client("sts"),
+                                     credentials=google_credentials)
+    provider_aws.login_aws()
 
 
 if __name__ == "__main__":
