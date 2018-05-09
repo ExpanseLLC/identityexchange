@@ -42,12 +42,12 @@ class Config:
         """
         credentials = {
             "installed": {
-                "client_id": "396994310677-lka6gs28gnmgfojv5ljkp2kj3bbam4jk.apps.googleusercontent.com",
-                "project_id": "megryan-poc-oauth",
+                "client_id": "XXXXXXXXXXXXXXXXXXXXXXXXXXXX.apps.googleusercontent.com",
+                "project_id": "XXXXXXXXXXX",
                 "auth_uri": "https://accounts.google.com/o/oauth2/auth",
                 "token_uri": "https://accounts.google.com/o/oauth2/token",
                 "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-                "client_secret": "cgSt00YeYBkcR4I_k65cmNw9",
+                "client_secret": "XXXXXXXXXXXXXXXXXXX",
                 "redirect_uris": [
                     "urn:ietf:wg:oauth:2.0:oob",
                     "http://localhost"

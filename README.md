@@ -25,6 +25,82 @@ make test
 make clean
 ```
 
+## Running the exchange
+
+### First time
+
+The first time you run `identityexchange` you will be walked through the setup process.
+After the setup process, the `identityexchange` will open a browser tab where you will 
+login with your Google account.
+
+After log in your browser will show `The authentication flow has completed.` and your terminal
+will show `Authentication successful.`
+
+This completes the setup and first login.
+ 
+### Subsequent times
+
+After the first login with Google, a Google token is cached on your filesystem in the below 
+location. Each execution of `identityexchange` after the first will no longer require a browser.
+
+The cached Google token will be refreshed and exchanged for AWS credentials.
+
+```bash
+~/.config/identityexchange/credentials.json
+```
+
+Each time `identityexchange` is invoked the contents of `~/.aws/credentials` is rewritten.
+All configured profiles will have their credentials regenerated. 
+
+## Configuration
+
+Before you can use the `identityexchange` you will need to create a set of OAuth2 Google credentials.
+These credentials are configured [here](https://bitbucket.org/expansellc/identityexchange/src/4c9e9ad78bc1923e90b3be8c817af196f53ec30d/identityexchange/config.py#lines-45)
+
+1. Update the client identifier
+2. Update the project identifier
+3. Update the client secret
+
+The first time you run `identityexchange` you will be walked through the setup process.
+When the setup process is completed you will have a couple of new files on your filesystem.
+
+```bash
+$ identityexchange
+Enter Google domain (only users from this domain will be allowed): gsuite-domain.com
+Let's configure your first AWS Profile...
+Enter the profile name: admin
+Enter AWS account identifier: 1234567890101
+Enter AWS role name: admin-role
+```
+
+Resulting configuration after walking through the setup process.
+
+```yaml
+# ~/.config/identityexchange/application.yaml
+
+aws:
+  duration: 3600
+  profiles:
+  - name: admin
+    role: arn:aws:iam::1234567890101:role/admin-role
+google:
+  credentials_file: /Users/ryanscott/.config/identityexchange/google_credentials.json
+  domain: gsuite-domain.com
+```
+
+Adding additional AWS accounts or IAM Role is done through adding additional profiles to the 
+list in the configuration file.
+
+```yaml
+aws:
+  duration: 3600
+  profiles:
+  - name: admin
+    role: arn:aws:iam::1234567890101:role/admin-role
+  - name: new-profile
+    role: arn:aws:iam::098765432111:role/new-role
+```
+
 ## Components
 
 ### Login with Google
@@ -32,15 +108,14 @@ make clean
 The first step is getting a token for an authenticated Google user.
 This is described in detail [here](https://developers.google.com/api-client-library/python/auth/installed-app).
 
-The code for this can be seen [here](identityexchange/main.py?at=master&fileviewer=file-view-default#main.py-38)
-
 ### Token verification
 
 Once we have a token we need to verify the token. During verification the following steps are performed:
 
 1. API call to Google is made to decode token and ensure the token is still valid
-2. The token issuer (client id) matches the expected value (from client_credentials.json)
-3. The user's email address is extracted from the decoded token
+2. The token issuer matches the expected value (must have been issued by Google)
+3. If configured to restrict to a GSuite domain, the domain is checked as well 
+4. The user's email address is extracted from the decoded token
 
 The code for this can be seen [here](identityexchange/main.py?at=master&fileviewer=file-view-default#main.py-12)
 
@@ -49,8 +124,6 @@ The code for this can be seen [here](identityexchange/main.py?at=master&fileview
 At this point we have authenticated and ensured our Google credentials are valid.
 Now we need to exchange our Google credentials for a set of AWS credentials.
 This is done with the AWS [Secure Token Service](https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRoleWithWebIdentity.html).
-
-The code for this can be seen [here](identityexchange/main.py?at=master&fileviewer=file-view-default#main.py-60)
 
 In order to exchange Google -> AWS credentials you will need an IAM Role that the user will be assuming.
 This Role defines what permissions the user will have with their AWS credentials.

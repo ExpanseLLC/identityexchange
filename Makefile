@@ -1,4 +1,4 @@
-.PHONY: init lint test install clean
+.PHONY: init lint test clean
 
 init:
 	python3 -m venv .venv
@@ -12,11 +12,6 @@ lint:
 test:
 	source .venv/bin/activate; \
 	pytest --cov=identityexchange; \
-
-install:
-	python3 -m venv .venv
-	source .venv/bin/activate; \
-	python3 setup.py install; \
 
 clean:
 	rm -rf .venv/
