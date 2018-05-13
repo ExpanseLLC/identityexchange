@@ -1,5 +1,7 @@
 # Identity Exchange
 
+[![Build Status](https://travis-ci.org/ExpanseLLC/identityexchange.svg?branch=master)](https://travis-ci.org/ExpanseLLC/identityexchange)
+
 IdentityExchange authenticates a user via a Google identity then creates temporary AWS credentials
 for each configured profile.
 
@@ -30,17 +32,17 @@ make clean
 ### First time
 
 The first time you run `identityexchange` you will be walked through the setup process.
-After the setup process, the `identityexchange` will open a browser tab where you will 
+After the setup process, the `identityexchange` will open a browser tab where you will
 login with your Google account.
 
 After log in your browser will show `The authentication flow has completed.` and your terminal
 will show `Authentication successful.`
 
 This completes the setup and first login.
- 
+
 ### Subsequent times
 
-After the first login with Google, a Google token is cached on your filesystem in the below 
+After the first login with Google, a Google token is cached on your filesystem in the below
 location. Each execution of `identityexchange` after the first will no longer require a browser.
 
 The cached Google token will be refreshed and exchanged for AWS credentials.
@@ -50,7 +52,7 @@ The cached Google token will be refreshed and exchanged for AWS credentials.
 ```
 
 Each time `identityexchange` is invoked the contents of `~/.aws/credentials` is rewritten.
-All configured profiles will have their credentials regenerated. 
+All configured profiles will have their credentials regenerated.
 
 ## Configuration
 
@@ -88,7 +90,7 @@ google:
   domain: gsuite-domain.com
 ```
 
-Adding additional AWS accounts or IAM Role is done through adding additional profiles to the 
+Adding additional AWS accounts or IAM Role is done through adding additional profiles to the
 list in the configuration file.
 
 ```yaml
@@ -114,7 +116,7 @@ Once we have a token we need to verify the token. During verification the follow
 
 1. API call to Google is made to decode token and ensure the token is still valid
 2. The token issuer matches the expected value (must have been issued by Google)
-3. If configured to restrict to a GSuite domain, the domain is checked as well 
+3. If configured to restrict to a GSuite domain, the domain is checked as well
 4. The user's email address is extracted from the decoded token
 
 The code for this can be seen [here](identityexchange/main.py?at=master&fileviewer=file-view-default#main.py-12)
