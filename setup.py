@@ -1,5 +1,5 @@
-#!/usr/bin/env python3.6
 
+#!/usr/bin/env python3.6
 from distutils.core import setup
 
 from setuptools import find_packages
@@ -11,21 +11,21 @@ setup(name="IdentityExchange",
       author_email="info@expansellc.io",
       url="http://expansellc.io/",
       packages=find_packages(exclude=["tests"]),
-      tests_require=["pytest"],
       install_requires=[
           "boto3==1.7.3",
           "google-api-python-client==1.6.6",
           "google-auth==1.4.1",
           "requests-oauthlib==0.8.0",
           "google-auth-oauthlib==0.2.0",
-          "PyYAML==3.12"
+          "PyYAML==4.2b1"
       ],
       extras_require={
           "dev": [
+	      "pytest==4.1.1",
               "pycodestyle",
               "pytest-mock",
               "pytest-cov",
-              "coverage"
+              "coverage==4.5.2"
           ]
       },
       entry_points={
