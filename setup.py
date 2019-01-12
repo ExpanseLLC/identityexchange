@@ -1,5 +1,5 @@
-#!/usr/bin/env python3.6
 
+#!/usr/bin/env python3.6
 from distutils.core import setup
 
 from setuptools import find_packages
@@ -18,7 +18,7 @@ setup(name="IdentityExchange",
           "google-auth==1.4.1",
           "requests-oauthlib==0.8.0",
           "google-auth-oauthlib==0.2.0",
-          "PyYAML==3.12"
+          "PyYAML==4.2b1"
       ],
       extras_require={
           "dev": [
